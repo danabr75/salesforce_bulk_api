@@ -5,6 +5,7 @@ require 'timeout'
     include Concerns::Throttling
 
     LOGIN_HOST = 'login.salesforce.com'
+    SANDBOX_LOGIN_HOST = 'test.salesforce.com'
 
     def initialize(api_version, client)
       @client = client
@@ -19,10 +20,10 @@ require 'timeout'
       case client_type
       when "Restforce::Data::Client"
         @session_id = @client.options[:oauth_token]
-        @server_url = @client.options[:instance_url]
+        @server_url = @client.options[:instance_url] || @client.options[:host]
       else
         @session_id = @client.oauth_token
-        @server_url = @client.instance_url
+        @server_url = @client.instance_url ||  @client.host
       end
       @instance = parse_instance()
       @instance_host = "#{@instance}.salesforce.com"
@@ -30,7 +31,7 @@ require 'timeout'
 
     def post_xml(host, path, xml, headers)
       host = host || @instance_host
-      if host != LOGIN_HOST # Not login, need to add session id to header
+      if host != LOGIN_HOST && host != SANDBOX_LOGIN_HOST # Not login, need to add session id to header
         headers['X-SFDC-Session'] = @session_id
         path = "#{@path_prefix}#{path}"
       end
