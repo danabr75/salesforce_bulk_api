@@ -36,6 +36,8 @@ require 'timeout'
         puts "PATH-PRE: #{@path_prefix}"
         puts "PATH: #{path}"
         path = "#{@path_prefix}#{path}"
+        puts "XML: #{xml.inspect}"
+        puts "HEADERS: #{headers.inspect}"
       end
       i = 0
       begin
