@@ -33,6 +33,8 @@ require 'timeout'
       host = host || @instance_host
       if host != LOGIN_HOST && host != SANDBOX_LOGIN_HOST # Not login, need to add session id to header
         headers['X-SFDC-Session'] = @session_id
+        puts "PATH-PRE: #{@path_prefix}"
+        puts "PATH: #{path}"
         path = "#{@path_prefix}#{path}"
       end
       i = 0
@@ -40,14 +42,14 @@ require 'timeout'
         count :post
         throttle(http_method: :post, path: path)
         https(host).post(path, xml, headers).body
-      rescue
+      rescue Exception => e
         i += 1
         if i < 3
           puts "Request fail #{i}: Retrying #{path}"
           retry
         else
           puts "FATAL: Request to #{path} failed three times."
-          raise
+          raise e
         end
       end
     end
